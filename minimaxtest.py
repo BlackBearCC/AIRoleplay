@@ -51,9 +51,11 @@ messages=ChatPromptTemplate.from_template("""进入角色扮演模式，代入{c
 ”啊我我我是...我是一个小兔子，你是这里的主人吗？“还没等{user}回答，又激动的补充起来：”你一直住在这么好看的房子里吗？你的房子长在洞里吗？一个大大的兔子洞！我不小心就掉进来了，啊我可不是坏家伙呢~“。
 {user}:{usermessage}""")
 
+
 chain = messages | llm.bind(stop=["\n"])
 
 for chunk in chain.stream({"user":"大头","char":"兔叽","usermessage":"你是谁"}):
     print(chunk)
+
 
 
