@@ -13,5 +13,14 @@ final_prompt = ChatPromptTemplate.from_template(prompt)
 
 chain = final_prompt | minimax
 
-for chunk in chain.stream({"user":"大头","char":"兔叽","input":"你是谁"}):
-    print(chunk)
+
+user_input = input()
+
+while user_input != "exit":
+    print(1)
+    for chunk in chain.stream({"user": "大头", "char": "兔叽", "input": user_input}):
+        print(chunk)
+    user_input = input()
+
+
+
