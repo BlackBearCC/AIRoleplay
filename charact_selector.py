@@ -1,6 +1,6 @@
 import tuji_charactor
 
-def create_tuji_charactor():
+def initialize_tuji():
     tuji = tuji_charactor.RabbitCharacter("兔叽", "15", "胡萝卜", "严肃的人", "需要{user}照顾",
                                           "期待拥有自己的故事，充满好奇心，紧张、害怕、激动、好奇",
                                           "一只可爱的小兔子，长有长长的耳朵，有时会变成小女孩",
