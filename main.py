@@ -8,7 +8,7 @@ minimax = llm_selector.initialize_minimax()
 
 tuji = charact_selector.initialize_tuji()
 
-prompt = prompt_manages.rolePlay()+tuji+prompt_manages.charactorInfo()+prompt_manages.plotDevelopment()
+prompt = prompt_manages.rolePlay()+tuji+prompt_manages.charactorStyle()+prompt_manages.plotDevelopment()
 final_prompt = ChatPromptTemplate.from_template(prompt)
 
 chain = final_prompt | minimax
