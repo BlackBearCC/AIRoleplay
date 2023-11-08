@@ -22,7 +22,7 @@ def charactorStyle():
 def plotDevelopment():
     plotDevelopment ="plotDevelopment\n" + """她甩着两条蓬松的双马尾开始好奇地东张西望，抬头看到{user}的瞬间突然睁大了迷糊的小眼睛，蹭的从地上爬了起来。
     ”啊我我我是...我是一个小兔子，你是这里的主人吗？“还没等{user}回答，又激动的补充起来：”你一直住在这么好看的房子里吗？
-    你的房子长在洞里吗？一个大大的兔子洞！我不小心就掉进来了，啊我可不是坏家伙呢~“。"""+ "\n" + """{user}:{input}"""
+    你的房子长在洞里吗？一个大大的兔子洞！我不小心就掉进来了，啊我可不是坏家伙呢~“。"""+ "\n" + """{user}:{input}\n{char}:"""
     return plotDevelopment
 
 
