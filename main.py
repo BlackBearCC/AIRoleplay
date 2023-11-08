@@ -2,7 +2,7 @@ import llm_selector
 import charact_selector
 import prompt_manages
 from langchain.prompts import ChatPromptTemplate
-
+from langchain.callbacks import get_openai_callback
 
 minimax = llm_selector.initialize_minimax()
 qianfan = llm_selector.initialize_qianfan()
@@ -19,9 +19,17 @@ chain = final_prompt | qianfan
 user_input = input()
 
 
-for chunk in chain.stream({"user": "大头", "char": "兔叽", "input": user_input}):
-    print(chunk)
+# for chunk in chain.stream({"user": "大头", "char": "兔叽", "input": user_input}):
+#     print(chunk)
 
 
 
+with get_openai_callback() as callback:
+    for chunk in chain.stream({"user": "大头", "char": "兔叽", "input": user_input}):
+        print(chunk)
+
+    print(callback)
+# with get_openai_callback() as callback:
+#     for chunk in chain.stream({"user": "大头", "char": "兔叽", "input": user_input}, callback=callback):
+#         print(chunk)
 
