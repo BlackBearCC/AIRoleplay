@@ -19,6 +19,7 @@ from langchain.llms import OpenAI
 import os
 # os.environ["OPENAI_API_KEY"] = "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"
 from langchain.chat_models import ChatOpenAI
+
 # llm = OpenAI()
 # file_path='D:/AIAssets/ProjectAI/AIRoleplay/tangshiye_test_output_dialogue.jsonl'
 # with open(file_path, 'r', encoding='utf-8') as file:
@@ -28,17 +29,20 @@ data = loader.load()
 text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
 texts = text_splitter.split_documents(data)
 model_name = "BAAI/bge-large-en-v1.5"
-encode_kwargs = {'normalize_embeddings': True} # set True to compute cosine similarity
+encode_kwargs = {'normalize_embeddings': True}  # set True to compute cosine similarity
 
 embedding_model = HuggingFaceBgeEmbeddings(
-model_name=model_name,
-model_kwargs={'device': 'cpu'},
-encode_kwargs=encode_kwargs
+    model_name=model_name,
+    model_kwargs={'device': 'cpu'},
+    encode_kwargs=encode_kwargs
 )
-print(embedding_model.embed_query("你是谁"))
-# vectordb = Chroma.from_documents(documents=texts,embedding=embedding_model)
+query = "你是谁"
+vectordb = Chroma.from_documents(documents=texts,embedding=embedding_model)
+docs = vectordb.search(query=query,search_type="similarity", k=5)
+print(docs[0].page_content)
+
 # retriever = vectordb.as_retriever(search_kwargs={"k": 5})
-# print(vectordb)
+
 #
 # # data = json.loads(Path(file_path).read_text())
 # print(data)
@@ -77,5 +81,3 @@ print(embedding_model.embed_query("你是谁"))
 # for chunk in chain.stream({"user": "大头", "char": "兔叽", "input": "None"}):
 #      print(chunk)
 #
-
-
