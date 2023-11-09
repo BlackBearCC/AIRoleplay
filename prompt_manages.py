@@ -25,4 +25,17 @@ def plotDevelopment():
     你的房子长在洞里吗？一个大大的兔子洞！我不小心就掉进来了，啊我可不是坏家伙呢~“。"""+ "\n" + """{user}:{input}\n{char}:"""
     return plotDevelopment
 
-
+#语料准备
+def prepare_corpus():
+    prepare_corpus = """Imagine 20 scenes that describe the protagonist {char} only based on the above context. The scenes should be described concisely, focusing on the background
+and without telling the details. The scenes can be chats, debates, discussions, speech, etc. Try to be creative and diverse. Do not omit.请用中文回复
+Example Output:
+Scene 1:
+Type: Chat (choice in chat, debate, discussion, speech)
+Location: ...
+Background: ...
+Scene 2:
+Type: Debate
+Location: ...
+Background: ..."""
+    return prepare_corpus
