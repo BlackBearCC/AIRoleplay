@@ -1,6 +1,7 @@
 import logging
 from langchain.llms import Minimax
 from langchain.llms import QianfanLLMEndpoint
+
 import os
 
 os.environ["QIANFAN_AK"] = "FxhI5DprCvZQniOvLNwmp121"
