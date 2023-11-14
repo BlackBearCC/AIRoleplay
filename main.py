@@ -2,7 +2,7 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.vectorstores.chroma import Chroma
 from langchain.agents.agent_types import AgentType
 
-import llm_selector
+import LanguageModelSwitcher
 import charact_selector
 import prompt_manages
 from langchain.prompts import ChatPromptTemplate
@@ -43,12 +43,17 @@ from langchain.chat_models import ChatOpenAI
 from role_tool import KnowledgeTool
 from role_tool import ActTool
 from langchain.agents import initialize_agent
-llm = llm_selector.initialize_minimax()
+from LanguageModelSwitcher import LanguageModelSwitcher
 
-tools = [KnowledgeTool(),ActTool()]
-agent = initialize_agent(tools,llm,agent = "zero-shot-react-description",verbose=True)
+# 创建 LanguageModelSwitcher 的实例
+switcher = LanguageModelSwitcher("minimax")
+model_instance = switcher.model
 
-agent.run("你的兴趣")
+
+# tools = [KnowledgeTool(),ActTool()]
+# agent = initialize_agent(tools,llm)
+#
+# agent.run("你的兴趣")
 
 
 # retriever = vectordb.as_retriever(search_kwargs={"k": 5})
@@ -61,13 +66,12 @@ agent.run("你的兴趣")
 # print(llm.predict("nihao!"))
 # minimax = llm_selector.initialize_minimax()
 
-# # model = OpenAI()
-# #
-# #
-# tuji = charact_selector.initialize_tuji()
 
+# tuji = charact_selector.initialize_tuji()
+#
 # prompt = prompt_manages.rolePlay()+tuji+prompt_manages.charactorStyle()+prompt_manages.plotDevelopment()+prompt_manages.prepare_corpus()
 # final_prompt = ChatPromptTemplate.from_template(prompt)
+prompt = ChatPromptTemplate.from_template("tell me a joke about {topic}")
 # print(prompt)
 #
 # # file_path='tangshiye_test_output_dialogue.jsonl'
@@ -77,17 +81,11 @@ agent.run("你的兴趣")
 # # print(data)
 # # chain = final_prompt | minimax
 # chain = final_prompt | qianfan
-# chain = final_prompt | model
-#
-# #
-# #
-# user_input = input()
-# #
+chain = prompt | model_instance
+print(chain)
 
-# # len(embedding)
-# # print(embedding)
-#
-#
-# for chunk in chain.stream({"user": "大头", "char": "兔叽", "input": "None"}):
-#      print(chunk)
+user_input = input()
+
+for chunk in chain.stream({"user": "大头", "char": "兔叽", "input":user_input}):
+     print(chunk)
 #
