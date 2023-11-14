@@ -67,11 +67,11 @@ model_instance = switcher.model
 # minimax = llm_selector.initialize_minimax()
 
 
-# tuji = charact_selector.initialize_tuji()
-#
-# prompt = prompt_manages.rolePlay()+tuji+prompt_manages.charactorStyle()+prompt_manages.plotDevelopment()+prompt_manages.prepare_corpus()
-# final_prompt = ChatPromptTemplate.from_template(prompt)
-prompt = ChatPromptTemplate.from_template("tell me a joke about {topic}")
+tuji = charact_selector.initialize_tuji()
+
+prompt = prompt_manages.rolePlay()+tuji+prompt_manages.charactorStyle()+prompt_manages.plotDevelopment()+prompt_manages.prepare_corpus()
+final_prompt = ChatPromptTemplate.from_template(prompt)
+
 # print(prompt)
 #
 # # file_path='tangshiye_test_output_dialogue.jsonl'
@@ -81,8 +81,8 @@ prompt = ChatPromptTemplate.from_template("tell me a joke about {topic}")
 # # print(data)
 # # chain = final_prompt | minimax
 # chain = final_prompt | qianfan
-chain = prompt | model_instance
-print(chain)
+chain = final_prompt | model_instance
+
 
 user_input = input()
 
