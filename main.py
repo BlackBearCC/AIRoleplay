@@ -46,9 +46,14 @@ from langchain.agents import initialize_agent
 from LanguageModelSwitcher import LanguageModelSwitcher
 
 # 创建 LanguageModelSwitcher 的实例
-switcher = LanguageModelSwitcher("minimax")
-model_instance = switcher.model
-
+model = LanguageModelSwitcher("minimax").model
+tuji = charact_selector.initialize_tuji()
+prompt = prompt_manages.rolePlay()+tuji+prompt_manages.charactorStyle()+prompt_manages.plotDevelopment()+prompt_manages.prepare_corpus()
+final_prompt = ChatPromptTemplate.from_template(prompt)
+chain = final_prompt | model
+user_input = input()
+for chunk in chain.stream({"user": "大头", "char": "兔叽", "input":user_input}):
+     print(chunk)
 
 # tools = [KnowledgeTool(),ActTool()]
 # agent = initialize_agent(tools,llm)
@@ -67,10 +72,7 @@ model_instance = switcher.model
 # minimax = llm_selector.initialize_minimax()
 
 
-tuji = charact_selector.initialize_tuji()
 
-prompt = prompt_manages.rolePlay()+tuji+prompt_manages.charactorStyle()+prompt_manages.plotDevelopment()+prompt_manages.prepare_corpus()
-final_prompt = ChatPromptTemplate.from_template(prompt)
 
 # print(prompt)
 #
@@ -81,11 +83,5 @@ final_prompt = ChatPromptTemplate.from_template(prompt)
 # # print(data)
 # # chain = final_prompt | minimax
 # chain = final_prompt | qianfan
-chain = final_prompt | model_instance
 
-
-user_input = input()
-
-for chunk in chain.stream({"user": "大头", "char": "兔叽", "input":user_input}):
-     print(chunk)
 #

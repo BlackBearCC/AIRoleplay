@@ -5,6 +5,10 @@ os.environ["QIANFAN_SK"] = "E3TIfNHyMB8mF8rPwAYEUYMYBKqmxtdH"
 os.environ["OPENAI_API_KEY"] = "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"
 
 class LanguageModelSwitcher:
+    """
+    这个类用于根据给定的model_type来切换不同的语言模型。
+    初始化时，需要传入一个字符串类型的model_type，用于指定需要初始化的语言模型类型。
+    """
     def __init__(self, model_type):
         self.model = None
         self.model_type = model_type
