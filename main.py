@@ -16,12 +16,12 @@ from pprint import pprint
 
 from langchain.document_loaders.csv_loader import CSVLoader
 
-from langchain.llms import OpenAI
+
 import os
-os.environ["OPENAI_API_KEY"] = "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"
+
 from langchain.chat_models import ChatOpenAI
 
-llm = OpenAI(temperature=0)
+# llm = OpenAI(temperature=0)
 
 # loader = CSVLoader(file_path='D:/AIAssets/ProjectAI/AIRoleplay/tangshiye_test_output_dialogue.csv')
 # data = loader.load()
@@ -43,6 +43,7 @@ llm = OpenAI(temperature=0)
 from role_tool import KnowledgeTool
 from role_tool import ActTool
 from langchain.agents import initialize_agent
+llm = llm_selector.initialize_minimax()
 
 tools = [KnowledgeTool(),ActTool()]
 agent = initialize_agent(tools,llm,agent = "zero-shot-react-description",verbose=True)
@@ -59,7 +60,7 @@ agent.run("你的兴趣")
 
 # print(llm.predict("nihao!"))
 # minimax = llm_selector.initialize_minimax()
-# qianfan = llm_selector.initialize_qianfan()
+
 # # model = OpenAI()
 # #
 # #
