@@ -39,3 +39,5 @@ Type: Debate
 Location: ...
 Background: ..."""
     return prepare_corpus
+    hello = "Hello, {}!"
+    print(hello.format("world"))
