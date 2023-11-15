@@ -2,7 +2,7 @@ import logging
 import os
 os.environ["QIANFAN_AK"] = "FxhI5DprCvZQniOvLNwmp121"
 os.environ["QIANFAN_SK"] = "E3TIfNHyMB8mF8rPwAYEUYMYBKqmxtdH"
-os.environ["OPENAI_API_KEY"] = "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"
+os.environ["OPENAI_API_KEY"] = "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"
 
 class LanguageModelSwitcher:
     """

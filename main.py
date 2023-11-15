@@ -40,23 +40,21 @@ from langchain.chat_models import ChatOpenAI
 # docs = vectordb.search(query=query,search_type="similarity", k=5)
 # print(docs[0].page_content)
 
-from role_tool import KnowledgeTool
-from role_tool import ActTool
+from role_tool import ChatTool,MemoryTool,ActionResponeTool,GameKnowledgeTool
 from langchain.agents import initialize_agent
 from LanguageModelSwitcher import LanguageModelSwitcher
 
 # 创建 LanguageModelSwitcher 的实例
-model = LanguageModelSwitcher("minimax").model
-tuji = charact_selector.initialize_tuji()
-prompt = prompt_manages.rolePlay()+tuji+prompt_manages.charactorStyle()+prompt_manages.plotDevelopment()+prompt_manages.prepare_corpus()
-final_prompt = ChatPromptTemplate.from_template(prompt)
-chain = final_prompt | model
-user_input = input()
-for chunk in chain.stream({"user": "大头", "char": "兔叽", "input":user_input}):
-     print(chunk)
+model = LanguageModelSwitcher("openai").model
+# chain = final_prompt | model
+# user_input = input()
+# for chunk in chain.stream({"user": "大头", "char": "兔叽", "input":user_input}):
+#      print(chunk)
 
-# tools = [KnowledgeTool(),ActTool()]
-# agent = initialize_agent(tools,llm)
+tools = [ChatTool(),MemoryTool(),ActionResponeTool(),GameKnowledgeTool()]
+agent = initialize_agent(tools,model, agent="zero-shot-react-description", verbose=True)
+agent.run("游戏好玩吗")
+
 #
 # agent.run("你的兴趣")
 
