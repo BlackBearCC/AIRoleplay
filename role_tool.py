@@ -1,22 +1,44 @@
 from langchain.prompts import ChatPromptTemplate
-from langchain.tools import BaseTool
+from langchain.tools import BaseTool, Tool
 
 import charact_selector
 import prompt_manages
 from LanguageModelSwitcher import LanguageModelSwitcher
 
 
-#知识类工具
+# #知识类工具
+# def chat():
+#     model = LanguageModelSwitcher("minimax").model
+#     tuji = charact_selector.initialize_tuji()
+#     prompt = prompt_manages.rolePlay() + tuji + prompt_manages.charactorStyle()
+#     final_prompt = ChatPromptTemplate.from_template(prompt)
+#     # final_prompt.format_prompt(char="兔几", user="大头", input="你好")
+#     chain = final_prompt | model
+#     for chunk in chain.stream({"user": "大头", "char": "兔叽", "input": "你好"}):
+#         return chunk
+#     pass
+
+
 class ChatTool(BaseTool):
-    name = "Chat or greetings"
+    name = "Chat"
+    # func = chat()
     description = "Use the ChatTool when the user talks about their daily life, asks common questions, or seeks casual conversation."
 
     def _run(self, query: str) -> str:
-        return "我是聊天思维链"
+        model = LanguageModelSwitcher("minimax").model
+        tuji = charact_selector.initialize_tuji()
+        prompt = prompt_manages.rolePlay() + tuji + prompt_manages.charactorStyle()
+        final_prompt = ChatPromptTemplate.from_template(prompt)
+        # final_prompt.format_prompt(char="兔几", user="大头", input="你好")
+        chain = final_prompt | model
+        for chunk in chain.stream({"user": "大头", "char": "兔叽", "input": "你好"}):
+            return chunk
 
     async def _arun(self, query: str) -> str:
         """Use the tool asynchronously."""
         raise NotImplementedError("BingSearchRun does not support async")
+
+
 
 
 class MemoryTool(BaseTool):
