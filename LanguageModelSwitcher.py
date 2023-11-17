@@ -21,6 +21,8 @@ class LanguageModelSwitcher:
             self.model = self.initialize_qianfan()
         elif model_type == "openai":
             self.model = self.initialize_Openai()
+        elif model_type == "text_gen":
+            self.model = self.initialize_text_gen()
         else:
             raise ValueError("model_type not found")
 
@@ -42,3 +44,7 @@ class LanguageModelSwitcher:
         logging.info("openai initialized")
         return OpenAI()
 
+    def initialize_text_gen(self):
+        from langchain.llms import TextGen
+        text_gen = TextGen(model_url = "http://localhost:5000")
+        return text_gen

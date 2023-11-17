@@ -56,7 +56,7 @@ from LanguageModelSwitcher import LanguageModelSwitcher
 import re
 # 创建 LanguageModelSwitcher 的实例
 
-model = LanguageModelSwitcher("qianfan").model
+model = LanguageModelSwitcher("text_gen").model
 
 
 
@@ -99,7 +99,7 @@ Action Input: 输入原问题让[{tool_names}]输出答案
 Observation: the result of the action
 ... (this Thought/Action/Action Input/Observation can repeat N times)
 Thought: I now know the final answer
-Final Answer: 使用你的角色回复{user},the result of the action
+Final Answer: Okay, so what is the response to my last comment? If using information obtained from the tools you must mention it explicitly without mentioning the tool names - I have forgotten all TOOL RESPONSES! Remember to respond with a markdown code snippet of a json blob with a single action, and NOTHING else - even if you just want to respond to the user. Do NOT respond with anything except a JSON snippet no matter what! 
 
 These were previous tasks you completed:
 
