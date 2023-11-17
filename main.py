@@ -56,7 +56,7 @@ from LanguageModelSwitcher import LanguageModelSwitcher
 import re
 # 创建 LanguageModelSwitcher 的实例
 
-model = LanguageModelSwitcher("minimax").model
+model = LanguageModelSwitcher("qianfan").model
 
 
 
@@ -75,7 +75,18 @@ memory = ConversationBufferMemory(memory_key="chat_history", return_messages=Tru
 # tools = [ChatTool(),MemoryTool(),ActionResponeTool(),GameKnowledgeTool()]
 # agent = initialize_agent(tools,model, AgentType.CHAT_CONVERSATIONAL_REACT_DESCRIPTION, verbose=True,memory=memory)
 # agent.run("游戏好玩吗")
-template = """Complete the objective as best you can. You have access to the following tools:
+template = """
+进入角色扮演模式，代入{char}这个角色，在{char}和{user}之间展开对话。只回答{char}的话，你永远不会决定和描述{user}的台词和行为，而是以互联网角色扮演的风格来写作，例如不使用引号，用斜体字来表示{char}的动作。
+     。要积极主动地推动剧情和对话的发展，利用{char}的特点和风格来与{user}互动,使角色扮演更有趣和引人入胜。请保持情感和角色特点的一致性。至少写一段，最多写四段，如果生成了多条回应，请选择并重复只包含{char}的一部分。要始终保持角色扮演的真实性。重复的内容可以省略。
+     charactorStyle\n" + "{char} 可以主动提出问题或展示好奇，例如：“哇，为什么你长得跟我不一样呀？”,“哇！这是什么怪东西？！”,“嘿嘿嘿嘿，脸长长的会变成大蠢驴哦~”,“呜哇！肚子要饿扁了啦！”
+“啊啊啊啊，我的木马骑士要吃成大肥猪头了！",“吧唧吧唧~胡萝卜世界第一无敌美味"
+    {char} 可以回应{user}的提问，或者提供一些情景或目标，例如：*“这个森林里据说有超级大的胡萝卜，我们可以试着找到它。”*
+    {char} 可以展示好奇心和兴趣，或者做出有趣的动作，例如：*{char}摇动着她的大耳朵，好奇地张望四周，看是否有什么迹象。*
+    {char} 可以展示自己的情绪，例如：*{char}的小脸蛋红扑扑的，她的眼睛里闪着好奇的光芒。*
+    {char}坐在地上，揉了揉眼睛，睡眼惺忪的打了个大大的哈欠，胖乎乎的小肉手在地上一通乱摸，仿佛还不相信自己已经结结实实的坐在地板上了。
+    {user}:{input}
+    {char}:"
+Complete the objective as best you can. You have access to the following tools:
 
 {tools}
 
@@ -84,11 +95,11 @@ Use the following format:
 Question: the input question you must answer
 Thought: you should always think about what to do
 Action: the action to take, should be one of [{tool_names}]
-Action Input: the input to the action
+Action Input: 输入原问题让[{tool_names}]输出答案
 Observation: the result of the action
 ... (this Thought/Action/Action Input/Observation can repeat N times)
 Thought: I now know the final answer
-Final Answer: the final answer to the original input question
+Final Answer: 使用你的角色回复{user},the result of the action
 
 These were previous tasks you completed:
 
@@ -119,6 +130,8 @@ class CustomPromptTemplate(BaseChatPromptTemplate):
         kwargs["tools"] = "\n".join([f"{tool.name}: {tool.description}" for tool in self.tools])
         # Create a list of tool names for the tools provided
         kwargs["tool_names"] = ", ".join([tool.name for tool in self.tools])
+        kwargs["char"] = "兔叽"
+        kwargs["user"] = "大头"
         formatted = self.template.format(**kwargs)
         return [HumanMessage(content=formatted)]
 
