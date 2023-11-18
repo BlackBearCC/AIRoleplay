@@ -25,14 +25,15 @@ class ChatTool(BaseTool):
     description = "Use the ChatTool when the user talks about their daily life, asks common questions, or seeks casual conversation."
 
     def _run(self, query: str) -> str:
-        model = LanguageModelSwitcher("minimax").model
+        model = LanguageModelSwitcher("text_gen").model
         tuji = charact_selector.initialize_tuji()
         prompt = prompt_manages.rolePlay() + tuji + prompt_manages.charactorStyle()
         final_prompt = ChatPromptTemplate.from_template(prompt)
         # final_prompt.format_prompt(char="兔几", user="大头", input="你好")
         chain = final_prompt | model
-        for chunk in chain.stream({"user": "大头", "char": "兔叽", "input": "你好"}):
-            return chunk
+        t =  chain.invoke({"user": "大头", "char": "兔叽", "input": "你好"})
+        # for chunk in chain.stream({"user": "大头", "char": "兔叽", "input": "你好"}):
+        return t
 
     async def _arun(self, query: str) -> str:
         """Use the tool asynchronously."""
