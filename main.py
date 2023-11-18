@@ -1,33 +1,4 @@
-from typing import Union, List
-
 from langchain.chains import LLMChain
-from langchain.chains.question_answering.map_rerank_prompt import output_parser
-from langchain.memory import ConversationBufferMemory
-from langchain.schema import AgentAction, AgentFinish, HumanMessage
-from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.tools import Tool, BaseTool
-from langchain.vectorstores.chroma import Chroma
-from langchain.agents.agent_types import AgentType
-
-import LanguageModelSwitcher
-import charact_selector
-import prompt_manages
-from langchain.prompts import ChatPromptTemplate, BaseChatPromptTemplate
-from langchain.callbacks import get_openai_callback
-from langchain.embeddings import HuggingFaceBgeEmbeddings
-
-from langchain.document_loaders import JSONLoader
-import json
-from pathlib import Path
-from pprint import pprint
-
-from langchain.document_loaders.csv_loader import CSVLoader
-
-
-import os
-
-from langchain.chat_models import ChatOpenAI
-
 
 # llm = OpenAI(temperature=0)
 
@@ -50,10 +21,10 @@ from langchain.chat_models import ChatOpenAI
 # prompt = prompt_manages.rolePlay()+tuji+prompt_manages.charactorStyle()+prompt_manages.plotDevelopment()+prompt_manages.prepare_corpus()
 # final_prompt = ChatPromptTemplate.from_template(prompt)
 # print(prompt)
-from role_tool import ChatTool,MemoryTool,ActionResponeTool,GameKnowledgeTool
-from langchain.agents import initialize_agent, ZeroShotAgent, AgentOutputParser, LLMSingleActionAgent, AgentExecutor
+from role_tool import ChatTool
+from langchain.agents import ZeroShotAgent, AgentExecutor
 from LanguageModelSwitcher import LanguageModelSwitcher
-import re
+
 # 创建 LanguageModelSwitcher 的实例
 
 model = LanguageModelSwitcher("text_gen").model
@@ -110,8 +81,8 @@ tools = [ChatTool()
 # Question: {input}
 # {agent_scratchpad}"""
 # from langchain.agents.agent_toolkits import create_conversational_retrieval_agent
-from charactor_agent_prompt import PREFIX, FORMAT_INSTRUCTIONS, SUFFIX
-from charactor_zero_shot_agent import CharactorZeroShotAgent
+from agent.charactor_agent_prompt import PREFIX, FORMAT_INSTRUCTIONS, SUFFIX
+from agent.charactor_zero_shot_agent import CharactorZeroShotAgent
 prompt = CharactorZeroShotAgent.create_prompt(
     tools, prefix=PREFIX, suffix=SUFFIX,format_instructions=FORMAT_INSTRUCTIONS,input_variables=["input", "agent_scratchpad"]
 )
