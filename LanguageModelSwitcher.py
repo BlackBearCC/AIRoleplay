@@ -1,5 +1,8 @@
 import logging
 import os
+
+from langchain.callbacks import StreamingStdOutCallbackHandler
+
 os.environ["QIANFAN_AK"] = "FxhI5DprCvZQniOvLNwmp121"
 os.environ["QIANFAN_SK"] = "E3TIfNHyMB8mF8rPwAYEUYMYBKqmxtdH"
 os.environ["OPENAI_API_KEY"] = "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"
@@ -23,6 +26,8 @@ class LanguageModelSwitcher:
             self.model = self.initialize_Openai()
         elif model_type == "text_gen":
             self.model = self.initialize_text_gen()
+        elif model_type == "text_gen_ws":
+            self.model = self.initialize_text_gen_ws()
         else:
             raise ValueError("model_type not found")
 
@@ -48,3 +53,8 @@ class LanguageModelSwitcher:
         from langchain.llms import TextGen
         text_gen = TextGen(model_url = "http://localhost:5000")
         return text_gen
+
+    def initialize_text_gen_ws(self):
+        from langchain.llms import TextGen
+        text_gen_ws = TextGen(model_url = "ws://127.0.0.1:5005",streaming=True, callbacks=[StreamingStdOutCallbackHandler()])
+        return text_gen_ws
