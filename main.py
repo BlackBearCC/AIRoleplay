@@ -81,19 +81,25 @@ tools = [ChatTool()
 # Question: {input}
 # {agent_scratchpad}"""
 # from langchain.agents.agent_toolkits import create_conversational_retrieval_agent
+
 from agent.charactor_agent_prompt import PREFIX, FORMAT_INSTRUCTIONS, SUFFIX
 from agent.charactor_zero_shot_agent import CharactorZeroShotAgent
 prompt = CharactorZeroShotAgent.create_prompt(
     tools, prefix=PREFIX, suffix=SUFFIX,format_instructions=FORMAT_INSTRUCTIONS,input_variables=["input", "agent_scratchpad"]
 )
+from langchain.agents.agent_toolkits import create_retriever_tool
+from agent.CustomOutputParser import CustomOutputParser
+output_parser = CustomOutputParser()
 print(prompt.template)
 tool_names = [tool.name for tool in tools]
 llm_chain = LLMChain(llm=model, prompt=prompt)
-agent = ZeroShotAgent(llm_chain=llm_chain, allowed_tools=tool_names)
+agent = CharactorZeroShotAgent(llm_chain=llm_chain,  output_parser=output_parser,allowed_tools=tool_names)
+
 agent_executor = AgentExecutor.from_agent_and_tools(
-    agent=agent, tools=tools, verbose=True
+    agent=agent, tools=tools,verbose=True
 )
 agent_executor.run("你是谁")
+# from langchain.prompts import BaseChatPromptTemplate
 # class CustomPromptTemplate(BaseChatPromptTemplate):
 #     # The template to use
 #     template: str
@@ -141,7 +147,7 @@ agent_executor.run("你是谁")
 #         regex = r"Action\s*\d*\s*:(.*?)\nAction\s*\d*\s*Input\s*\d*\s*:[\s]*(.*)"
 #         match = re.search(regex, llm_output, re.DOTALL)
 #         if not match:
-#             raise ValueError(f"Could not parse LLM output: `{llm_output}`")
+#             raise ValueError(f"无法解析输出: `{llm_output}`")
 #         action = match.group(1).strip()
 #         action_input = match.group(2)
 #         # Return the action and action input

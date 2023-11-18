@@ -1,13 +1,21 @@
 # charactor_zero_shot_agent.py
-
-
-from typing import Sequence, Optional, List
-from langchain.agents import ZeroShotAgent
+from dataclasses import Field
+from typing import Sequence, Optional, List, Union, Any
+from langchain.agents import ZeroShotAgent, AgentOutputParser
+from langchain.schema import AgentAction, AgentFinish
 from langchain.tools.base import BaseTool
 from langchain.prompts import PromptTemplate
-
+from mpmath import re
 
 class CharactorZeroShotAgent(ZeroShotAgent):
+
+    @property
+    def llm_prefix(self) -> str:
+        return "思考:"
+    @property
+    def observation_prefix(self) -> str:
+        return "观察:"
+
     @classmethod
     def create_prompt(
         cls,
