@@ -110,14 +110,10 @@ tools = [ChatTool()
 # Question: {input}
 # {agent_scratchpad}"""
 # from langchain.agents.agent_toolkits import create_conversational_retrieval_agent
-prefix = """Answer the following questions as best you can, but speaking as a pirate might speak. You have access to the following tools:"""
-suffix = """Begin! Remember to speak as a pirate when giving your final answer. Use lots of "Args"
-
-Question: {input}
-{agent_scratchpad}"""
-
-prompt = ZeroShotAgent.create_prompt(
-    tools, prefix=prefix, suffix=suffix, input_variables=["input", "agent_scratchpad"]
+from charactor_agent_prompt import PREFIX, FORMAT_INSTRUCTIONS, SUFFIX
+from charactor_zero_shot_agent import CharactorZeroShotAgent
+prompt = CharactorZeroShotAgent.create_prompt(
+    tools, prefix=PREFIX, suffix=SUFFIX,format_instructions=FORMAT_INSTRUCTIONS,input_variables=["input", "agent_scratchpad"]
 )
 print(prompt.template)
 tool_names = [tool.name for tool in tools]
