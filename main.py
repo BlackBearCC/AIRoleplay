@@ -1,4 +1,33 @@
+from typing import Union, List
+
 from langchain.chains import LLMChain
+from langchain.chains.question_answering.map_rerank_prompt import output_parser
+from langchain.memory import ConversationBufferMemory
+from langchain.schema import AgentAction, AgentFinish, HumanMessage
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain.tools import Tool, BaseTool, tool
+from langchain.vectorstores.chroma import Chroma
+from langchain.agents.agent_types import AgentType
+
+import LanguageModelSwitcher
+import charact_selector
+import prompt_manages
+from langchain.prompts import ChatPromptTemplate, BaseChatPromptTemplate
+from langchain.callbacks import get_openai_callback
+from langchain.embeddings import HuggingFaceBgeEmbeddings
+
+from langchain.document_loaders import JSONLoader
+import json
+from pathlib import Path
+from pprint import pprint
+
+from langchain.document_loaders.csv_loader import CSVLoader
+
+
+import os
+
+from langchain.chat_models import ChatOpenAI
+
 
 # llm = OpenAI(temperature=0)
 
@@ -21,20 +50,21 @@ from langchain.chains import LLMChain
 # prompt = prompt_manages.rolePlay()+tuji+prompt_manages.charactorStyle()+prompt_manages.plotDevelopment()+prompt_manages.prepare_corpus()
 # final_prompt = ChatPromptTemplate.from_template(prompt)
 # print(prompt)
-from role_tool import ChatTool
-from langchain.agents import ZeroShotAgent, AgentExecutor
+from role_tool import ChatTool,MemoryTool,ActionResponeTool,GameKnowledgeTool
+from langchain.agents import initialize_agent, ZeroShotAgent, AgentOutputParser, LLMSingleActionAgent, AgentExecutor, \
+    XMLAgent
 from LanguageModelSwitcher import LanguageModelSwitcher
-
+import re
 # 创建 LanguageModelSwitcher 的实例
 
-model = LanguageModelSwitcher("text_gen").model
+model = LanguageModelSwitcher("qianfan").model
 
 
 
 
-
-tools = [ChatTool()
-]
+#
+# tools = [ChatTool()
+# ]
 
 
 
@@ -81,31 +111,67 @@ tools = [ChatTool()
 # Question: {input}
 # {agent_scratchpad}"""
 # from langchain.agents.agent_toolkits import create_conversational_retrieval_agent
+# prefix = """Answer the following questions as best you can, but speaking as a pirate might speak. You have access to the following tools:"""
+# suffix = """Begin! Remember to speak as a pirate when giving your final answer. Use lots of "Args"
+#
+# Question: {input}
+# {agent_scratchpad}"""
+#
+# prompt = ZeroShotAgent.create_prompt(
+#     tools, prefix=prefix, suffix=suffix, input_variables=["input", "agent_scratchpad"]
+# )
+# print(prompt.template)
+# tool_names = [tool.name for tool in tools]
+# llm_chain = LLMChain(llm=model, prompt=prompt)
+# agent = ZeroShotAgent(llm_chain=llm_chain, allowed_tools=tool_names)
+# agent_executor = AgentExecutor.from_agent_and_tools(
+#     agent=agent, tools=tools, verbose=True
+# )
+# agent_executor.run("你是谁")
 
-from agent.charactor_agent_prompt import PREFIX, FORMAT_INSTRUCTIONS, SUFFIX
-from agent.charactor_zero_shot_agent import CharactorZeroShotAgent
-prompt = CharactorZeroShotAgent.create_prompt(
-    tools, prefix=PREFIX, suffix=SUFFIX,format_instructions=FORMAT_INSTRUCTIONS,input_variables=["input", "agent_scratchpad"]
-)
-from langchain.agents.agent_toolkits import create_retriever_tool
-from agent.CustomOutputParser import CustomOutputParser
-output_parser = CustomOutputParser()
-print(prompt.template)
-tool_names = [tool.name for tool in tools]
-llm_chain = LLMChain(llm=model, prompt=prompt)
-agent = CharactorZeroShotAgent(llm_chain=llm_chain,  output_parser=output_parser,allowed_tools=tool_names)
+@tool
+def search(query: str) -> str:
+    """Search things about current events."""
+    return "32 degrees"
 
-agent_executor = AgentExecutor.from_agent_and_tools(
-    agent=agent, tools=tools,verbose=True
+tool_list = [search]
+# Get prompt to use
+prompt = XMLAgent.get_default_prompt()
+# Logic for converting tools to string to go in prompt
+# Logic for going from intermediate steps to a string to pass into model
+# This is pretty tied to the prompt
+def convert_intermediate_steps(intermediate_steps):
+    log = ""
+    for action, observation in intermediate_steps:
+        log += (
+            f"<tool>{action.tool}</tool><tool_input>{action.tool_input}"
+            f"</tool_input><observation>{observation}</observation>"
+        )
+    return log
+def convert_tools(tools):
+    return "\n".join([f"{tool.name}: {tool.description}" for tool in tools])
+
+agent = (
+    {
+        "question": lambda x: x["question"],
+        "intermediate_steps": lambda x: convert_intermediate_steps(
+            x["intermediate_steps"]
+        ),
+    }
+    | prompt.partial(tools=convert_tools(tool_list))
+    | model.bind(stop=["</tool_input>", "</final_answer>"])
+    | XMLAgent.get_default_output_parser()
 )
-agent_executor.run("你是谁")
-# from langchain.prompts import BaseChatPromptTemplate
+agent_executor = AgentExecutor(agent=agent, tools=tool_list, verbose=True)
+
+agent_executor.invoke({"question": "whats the weather in New york?"})
+
 # class CustomPromptTemplate(BaseChatPromptTemplate):
 #     # The template to use
 #     template: str
 #     # The list of tools available
 #     tools: List[BaseTool]
-#
+
 #     def format_messages(self, **kwargs) -> str:
 #         # Get the intermediate steps (AgentAction, Observation tuples)
 #         # Format them in a particular way
@@ -147,7 +213,7 @@ agent_executor.run("你是谁")
 #         regex = r"Action\s*\d*\s*:(.*?)\nAction\s*\d*\s*Input\s*\d*\s*:[\s]*(.*)"
 #         match = re.search(regex, llm_output, re.DOTALL)
 #         if not match:
-#             raise ValueError(f"无法解析输出: `{llm_output}`")
+#             raise ValueError(f"Could not parse LLM output: `{llm_output}`")
 #         action = match.group(1).strip()
 #         action_input = match.group(2)
 #         # Return the action and action input

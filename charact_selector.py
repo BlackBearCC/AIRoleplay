@@ -1,3 +1,5 @@
+from langchain.agents import BaseSingleActionAgent
+
 import tuji_charactor
 
 def initialize_tuji():
