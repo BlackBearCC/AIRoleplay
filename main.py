@@ -28,6 +28,7 @@ import os
 
 from langchain.chat_models import ChatOpenAI
 
+from agent import charactor_zero_shot_agent
 from agent.charactor_zero_shot_agent import CharactorZeroShotAgent
 # llm = OpenAI(temperature=0)
 
@@ -57,7 +58,7 @@ from LanguageModelSwitcher import LanguageModelSwitcher
 import re
 # 创建 LanguageModelSwitcher 的实例
 
-model = LanguageModelSwitcher("qianfan").model
+model = LanguageModelSwitcher("minimax").model
 
 
 
@@ -132,12 +133,15 @@ model = LanguageModelSwitcher("qianfan").model
 @tool
 def search(query: str) -> str:
     """Search things about current events."""
-    return "32 degrees"
+    return "37 degrees"
 
 tool_list = [search]
 # Get prompt to use
+# Get prompt to use
 prompt = CharactorZeroShotAgent.get_default_prompt()
 # Logic for converting tools to string to go in prompt
+# Logic for going from intermediate steps to a string to pass into model
+# This is pretty tied to the prompt
 # Logic for going from intermediate steps to a string to pass into model
 # This is pretty tied to the prompt
 def convert_intermediate_steps(intermediate_steps):
@@ -148,6 +152,9 @@ def convert_intermediate_steps(intermediate_steps):
             f"</tool_input><observation>{observation}</observation>"
         )
     return log
+
+
+# Logic for converting tools to string to go in prompt
 def convert_tools(tools):
     return "\n".join([f"{tool.name}: {tool.description}" for tool in tools])
 
@@ -164,7 +171,7 @@ agent = (
 )
 agent_executor = AgentExecutor(agent=agent, tools=tool_list, verbose=True)
 
-agent_executor.invoke({"question": "告诉我北京的温度"})
+agent_executor.invoke({"question": "你叫什么"})
 
 
 # class CustomPromptTemplate(BaseChatPromptTemplate):
@@ -199,28 +206,28 @@ agent_executor.invoke({"question": "告诉我北京的温度"})
 #     # This includes the `intermediate_steps` variable because that is needed
 #     input_variables=["input", "intermediate_steps"]
 # )
-class CustomOutputParser(AgentOutputParser):
+# class CustomOutputParser(AgentOutputParser):
+#
+#     def parse(self, llm_output: str) -> Union[AgentAction, AgentFinish]:
+#         # Check if agent should finish
+#         if "Final Answer:" in llm_output:
+#             return AgentFinish(
+#                 # Return values is generally always a dictionary with a single `output` key
+#                 # It is not recommended to try anything else at the moment :)
+#                 return_values={"output": llm_output.split("Final Answer:")[-1].strip()},
+#                 log=llm_output,
+#             )
+#         # Parse out the action and action input
+#         regex = r"Action\s*\d*\s*:(.*?)\nAction\s*\d*\s*Input\s*\d*\s*:[\s]*(.*)"
+#         match = re.search(regex, llm_output, re.DOTALL)
+#         if not match:
+#             raise ValueError(f"Could not parse LLM output: `{llm_output}`")
+#         action = match.group(1).strip()
+#         action_input = match.group(2)
+#         # Return the action and action input
+#         return AgentAction(tool=action, tool_input=action_input.strip(" ").strip('"'), log=llm_output)
 
-    def parse(self, llm_output: str) -> Union[AgentAction, AgentFinish]:
-        # Check if agent should finish
-        if "Final Answer:" in llm_output:
-            return AgentFinish(
-                # Return values is generally always a dictionary with a single `output` key
-                # It is not recommended to try anything else at the moment :)
-                return_values={"output": llm_output.split("Final Answer:")[-1].strip()},
-                log=llm_output,
-            )
-        # Parse out the action and action input
-        regex = r"Action\s*\d*\s*:(.*?)\nAction\s*\d*\s*Input\s*\d*\s*:[\s]*(.*)"
-        match = re.search(regex, llm_output, re.DOTALL)
-        if not match:
-            raise ValueError(f"Could not parse LLM output: `{llm_output}`")
-        action = match.group(1).strip()
-        action_input = match.group(2)
-        # Return the action and action input
-        return AgentAction(tool=action, tool_input=action_input.strip(" ").strip('"'), log=llm_output)
-
-output_parser = CustomOutputParser()
+# output_parser = CustomOutputParser()
 # llm  = model
 # # LLM chain consisting of the LLM and a prompt
 # llm_chain = LLMChain(llm=llm, prompt=prompt)

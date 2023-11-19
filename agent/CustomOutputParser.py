@@ -32,7 +32,11 @@ class CustomOutputParser(AgentOutputParser):
         if "</tool>" in text:
             tool, tool_input = text.split("</tool>")
             _tool = tool.split("<tool>")[1]
-            _tool_input = tool_input.split("<tool_input>")[1]
+            try:
+                _tool_input = tool_input.split("<tool_input>")[1]
+            except:
+                _tool_input = "我没法评估"
+            # _tool_input = tool_input.split("<tool_input>")[1]
             if "</tool_input>" in _tool_input:
                 _tool_input = _tool_input.split("</tool_input>")[0]
             return AgentAction(tool=_tool, tool_input=_tool_input, log=text)

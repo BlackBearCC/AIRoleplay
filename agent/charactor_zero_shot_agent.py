@@ -10,7 +10,7 @@ from langchain.tools.base import BaseTool
 from langchain.prompts import PromptTemplate, ChatPromptTemplate, AIMessagePromptTemplate
 
 from agent.CustomOutputParser import CustomOutputParser
-
+from agent.charactor_agent_prompt import PREFIX, FORMAT_INSTRUCTIONS, SUFFIX, TSET
 
 class CharactorZeroShotAgent(BaseSingleActionAgent):
     """Agent that uses XML tags.
@@ -44,7 +44,7 @@ class CharactorZeroShotAgent(BaseSingleActionAgent):
     @staticmethod
     def get_default_prompt() -> ChatPromptTemplate:
         return ChatPromptTemplate.from_template(
-            agent_instructions
+            TSET
         ) + AIMessagePromptTemplate.from_template("{intermediate_steps}")
 
     @staticmethod

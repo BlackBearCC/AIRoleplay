@@ -42,7 +42,13 @@ class LanguageModelSwitcher:
     def initialize_qianfan(self):
         from langchain.llms import QianfanLLMEndpoint
         logging.info("qianfan initialized")
-        return QianfanLLMEndpoint(model="ERNIE-Bot-turbo")
+        llm = QianfanLLMEndpoint(
+            streaming=True,
+            model="ERNIE-Bot-turbo",
+            temperature=0.1,
+        )
+
+        return llm
 
     def initialize_Openai(self):
         from langchain.llms import OpenAI
