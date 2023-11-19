@@ -28,7 +28,7 @@ import os
 
 from langchain.chat_models import ChatOpenAI
 
-
+from agent.charactor_zero_shot_agent import CharactorZeroShotAgent
 # llm = OpenAI(temperature=0)
 
 # loader = CSVLoader(file_path='D:/AIAssets/ProjectAI/AIRoleplay/tangshiye_test_output_dialogue.csv')
@@ -136,7 +136,7 @@ def search(query: str) -> str:
 
 tool_list = [search]
 # Get prompt to use
-prompt = XMLAgent.get_default_prompt()
+prompt = CharactorZeroShotAgent.get_default_prompt()
 # Logic for converting tools to string to go in prompt
 # Logic for going from intermediate steps to a string to pass into model
 # This is pretty tied to the prompt
@@ -160,11 +160,12 @@ agent = (
     }
     | prompt.partial(tools=convert_tools(tool_list))
     | model.bind(stop=["</tool_input>", "</final_answer>"])
-    | XMLAgent.get_default_output_parser()
+    | CharactorZeroShotAgent.get_default_output_parser()
 )
 agent_executor = AgentExecutor(agent=agent, tools=tool_list, verbose=True)
 
-agent_executor.invoke({"question": "whats the weather in New york?"})
+agent_executor.invoke({"question": "告诉我北京的温度"})
+
 
 # class CustomPromptTemplate(BaseChatPromptTemplate):
 #     # The template to use
@@ -198,28 +199,28 @@ agent_executor.invoke({"question": "whats the weather in New york?"})
 #     # This includes the `intermediate_steps` variable because that is needed
 #     input_variables=["input", "intermediate_steps"]
 # )
-# class CustomOutputParser(AgentOutputParser):
-#
-#     def parse(self, llm_output: str) -> Union[AgentAction, AgentFinish]:
-#         # Check if agent should finish
-#         if "Final Answer:" in llm_output:
-#             return AgentFinish(
-#                 # Return values is generally always a dictionary with a single `output` key
-#                 # It is not recommended to try anything else at the moment :)
-#                 return_values={"output": llm_output.split("Final Answer:")[-1].strip()},
-#                 log=llm_output,
-#             )
-#         # Parse out the action and action input
-#         regex = r"Action\s*\d*\s*:(.*?)\nAction\s*\d*\s*Input\s*\d*\s*:[\s]*(.*)"
-#         match = re.search(regex, llm_output, re.DOTALL)
-#         if not match:
-#             raise ValueError(f"Could not parse LLM output: `{llm_output}`")
-#         action = match.group(1).strip()
-#         action_input = match.group(2)
-#         # Return the action and action input
-#         return AgentAction(tool=action, tool_input=action_input.strip(" ").strip('"'), log=llm_output)
-#
-# output_parser = CustomOutputParser()
+class CustomOutputParser(AgentOutputParser):
+
+    def parse(self, llm_output: str) -> Union[AgentAction, AgentFinish]:
+        # Check if agent should finish
+        if "Final Answer:" in llm_output:
+            return AgentFinish(
+                # Return values is generally always a dictionary with a single `output` key
+                # It is not recommended to try anything else at the moment :)
+                return_values={"output": llm_output.split("Final Answer:")[-1].strip()},
+                log=llm_output,
+            )
+        # Parse out the action and action input
+        regex = r"Action\s*\d*\s*:(.*?)\nAction\s*\d*\s*Input\s*\d*\s*:[\s]*(.*)"
+        match = re.search(regex, llm_output, re.DOTALL)
+        if not match:
+            raise ValueError(f"Could not parse LLM output: `{llm_output}`")
+        action = match.group(1).strip()
+        action_input = match.group(2)
+        # Return the action and action input
+        return AgentAction(tool=action, tool_input=action_input.strip(" ").strip('"'), log=llm_output)
+
+output_parser = CustomOutputParser()
 # llm  = model
 # # LLM chain consisting of the LLM and a prompt
 # llm_chain = LLMChain(llm=llm, prompt=prompt)
