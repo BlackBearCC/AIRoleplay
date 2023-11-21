@@ -157,7 +157,10 @@ def convert_intermediate_steps(intermediate_steps):
 # Logic for converting tools to string to go in prompt
 def convert_tools(tools):
     return "\n".join([f"{tool.name}: {tool.description}" for tool in tools])
-
+ZeroShotAgent
+XMLAgent
+initialize_agent
+LLMSingleActionAgent
 agent = (
     {
         "question": lambda x: x["question"],
