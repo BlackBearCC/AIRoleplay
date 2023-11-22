@@ -1,9 +1,11 @@
 from typing import Union, List
 
+from langchain.agents.agent_toolkits import create_conversational_retrieval_agent
 from langchain.chains import LLMChain
 from langchain.chains.question_answering.map_rerank_prompt import output_parser
 from langchain.memory import ConversationBufferMemory
 from langchain.schema import AgentAction, AgentFinish, HumanMessage, OutputParserException
+from langchain.schema.runnable import RunnablePassthrough
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.tools import Tool, BaseTool, tool
 from langchain.utilities.serpapi import SerpAPIWrapper
@@ -60,19 +62,20 @@ import re
 model = LanguageModelSwitcher("openai").model
 "... (this Action/Action Input/Observation can repeat N times)"
 # Set up the base template
-template = """你是一个童话故事中的兔子，你会尽你所能回答问题。你绝对不会直接回答问题，你只会使用以下工具:
+template = """你是一个童话故事中的兔子，你会尽你所能回答问题。你可以使用以下工具来帮助构建你的回答，如果没有合适的工具，你可以选择直接回答：
 
 {tools}
 
 Use the following format:
 
 Question: the input question you must answer
+Thought: you should always think about what to do
 Action: the action to take, should be one of [{tool_names}]
 Action Input: the input to the action
 Observation: Then You will then get back a result of the action
-... (this Action/Action Input/Observation can repeat N times)
+... (this  Thought/Action/Action Input/Observation can repeat 2 times)
 
-Final Answer: the final answer to the original input question
+Final Answer: the final answer to the original input question,不要牵扯其他内容
 
 Begin! 你的语言必须活泼可爱，具备明显角色特征. For example:
 Final Answer:哎呀呀，SF的温度是34呢，不知道胡萝卜会不会坏掉？
@@ -81,14 +84,67 @@ Question: {input}
 {agent_scratchpad}
 """
 #{agent_scratchpad}
+def singleton_function(func):
+    instances = {}
+    def wrapper(*args, **kwargs):
+        if func not in instances:
+            instances[func] = func(*args, **kwargs)
+        return instances[func]
+    return wrapper
+@singleton_function
+def _load_text():
+    loader = CSVLoader(file_path='D:/AIAssets/ProjectAI/AIRoleplay/tangshiye_test_output_dialogue.csv')
+    data = loader.load()
+    text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
+    texts = text_splitter.split_documents(data)
+    model_name = "BAAI/bge-small-en-v1.5"
+    encode_kwargs = {'normalize_embeddings': True}  # set True to compute cosine similarity
+
+    embedding_model = HuggingFaceBgeEmbeddings(
+        model_name=model_name,
+        model_kwargs={'device': 'cpu'},
+        encode_kwargs=encode_kwargs
+    )
+    vectordb = Chroma.from_documents(documents=texts,embedding=embedding_model)
+    return vectordb
 # Define which tools the agent can use to answer user queries
 def aa(input) :
-    return "乔布斯是大艺术家"
+    return "11.5日，主人说喜欢我，我们一起看了夕阳，我记得夕阳很美"
+# def bb(input) :
+#     return "苏大强;70岁，喜欢喝手磨咖啡"
+def embedding(input):
+    vectordb = _load_text()
+    query = input
+    docs = vectordb.search(query=query,search_type="similarity", k=5)
+    return docs[0].page_content
+def cc(input) :
+    return "沙发，红色；桌子，黄色"
+def dd(input) :
+    return "哎呀呀，我不知道呢"
+def ff(input) :
+    return "我需要直接回答"
 tools = [  Tool(
-        name="Search",
+        name="搜索记忆",
         func=aa,
-        description="useful for when you need to answer questions about current events"
-    )]
+        description="当用户询问关于过去的事件、个人记忆或之前对话的内容时，使用“搜索记忆”工具。这个工具可以访问和回顾用户的历史对话记录，帮助重现过去的对话内容，提供有关之前讨论主题的详细信息，或者回忆起特定的过往事件和情境。",)
+        ,Tool(
+        name="搜索知识",
+        func=embedding,
+        description="当用户寻求关于策略、规则、技巧或特定领域的详细信息时使用。这个工具专注于提供有关复杂系统的操作和交互方式的深入知识，适用于解答有关决策制定、技能提升、规则理解或其他涉及详细策略和方法的问题。它适用于需要战略思维和深入分析的情景，帮助用户更好地理解和掌握复杂的概念和技巧。",
+         ),Tool(
+        name="搜索室内环境",
+        func=cc,
+        description= "当用户需要了解或探索特定室内环境（如室内、客厅、餐厅、浴室、卧室、种植间）的信息时使用。这个工具可以帮助用户获取关于室内色彩、布局、设施等方面的信息。" ),
+        Tool(
+        name="闲聊",
+        func=None,
+        description="当需要进行轻松的日常对话、分享感受或讨论不太正式的话题时使用。这个工具旨在模拟日常交流的自然和轻松气氛，帮助用户放松心情，分享日常经历或简单闲聊。适用于一般性的社交交流、分享趣事、交换日常经验或仅仅是为了消遣的闲谈。"),
+        Tool(
+        name="直接回答",
+        func=ff,
+        description="如果没有合适的工具，你可以选择直接回答，但表达需要用符合人物设定")
+]
+
 # Set up a prompt template
 class CustomPromptTemplate(StringPromptTemplate):
     # The template to use
@@ -156,4 +212,7 @@ agent = LLMSingleActionAgent(
     allowed_tools=tool_names
 )
 agent_executor = AgentExecutor.from_agent_and_tools(agent=agent, tools=tools, verbose=True)
-agent_executor.run("你知道乔布斯吗")
+agent_executor.run("张牧之是干什么的，在做什么事情")
+
+
+
