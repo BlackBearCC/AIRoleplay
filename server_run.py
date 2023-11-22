@@ -57,7 +57,7 @@ from langchain.agents import initialize_agent, ZeroShotAgent, AgentOutputParser,
 from LanguageModelSwitcher import LanguageModelSwitcher
 import re
 
-model = LanguageModelSwitcher("minimax").model
+model = LanguageModelSwitcher("openai").model
 "... (this Action/Action Input/Observation can repeat N times)"
 # Set up the base template
 template = """你是一个童话故事中的兔子，你会尽你所能回答问题。你绝对不会直接回答问题，你只会使用以下工具:
@@ -69,19 +69,20 @@ Use the following format:
 Question: the input question you must answer
 Action: the action to take, should be one of [{tool_names}]
 Action Input: the input to the action
-Observation: the result of the action
+Observation: Then You will then get back a result of the action
+... (this Action/Action Input/Observation can repeat N times)
+
 Final Answer: the final answer to the original input question
 
 Begin! 你的语言必须活泼可爱，具备明显角色特征. For example:
-
 Final Answer:哎呀呀，SF的温度是34呢，不知道胡萝卜会不会坏掉？
 
 Question: {input}
+{agent_scratchpad}
 """
 #{agent_scratchpad}
 # Define which tools the agent can use to answer user queries
 def aa(input) :
-    print("我是游戏行为思维链")
     return "乔布斯是大艺术家"
 tools = [  Tool(
         name="Search",
@@ -98,13 +99,13 @@ class CustomPromptTemplate(StringPromptTemplate):
     def format(self, **kwargs) -> str:
         # Get the intermediate steps (AgentAction, Observation tuples)
         # Format them in a particular way
-        # intermediate_steps = kwargs.pop("intermediate_steps")
-        # thoughts = ""
-        # for action, observation in intermediate_steps:
-        #     thoughts += action.log
-        #     thoughts += f"\nObservation: {observation}\nThought: "
+        intermediate_steps = kwargs.pop("intermediate_steps")
+        thoughts = ""
+        for action, observation in intermediate_steps:
+            thoughts += action.log
+            thoughts += f"\nObservation: {observation}\nThought: "
         # Set the agent_scratchpad variable to that value
-        # kwargs["agent_scratchpad"] = thoughts
+        kwargs["agent_scratchpad"] = thoughts
         # Create a tools variable from the list of tools provided
         kwargs["tools"] = "\n".join([f"{tool.name}: {tool.description}" for tool in self.tools])
         # Create a list of tool names for the tools provided
@@ -133,6 +134,7 @@ class CustomOutputParser(AgentOutputParser):
                 log=llm_output,
             )
         # Parse out the action and action input
+
         regex = r"Action\s*\d*\s*:(.*?)\nAction\s*\d*\s*Input\s*\d*\s*:[\s]*(.*)"
         match = re.search(regex, llm_output, re.DOTALL)
         if not match:
