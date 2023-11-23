@@ -5,7 +5,7 @@ from langchain.callbacks import StreamingStdOutCallbackHandler
 
 os.environ["QIANFAN_AK"] = "FxhI5DprCvZQniOvLNwmp121"
 os.environ["QIANFAN_SK"] = "E3TIfNHyMB8mF8rPwAYEUYMYBKqmxtdH"
-os.environ["OPENAI_API_KEY"] = "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"
+os.environ["OPENAI_API_KEY"] = "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"
 
 class LanguageModelSwitcher:
     """

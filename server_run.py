@@ -73,7 +73,7 @@ Thought: you should always think about what to do
 Action: the action to take, should be one of [{tool_names}]
 Action Input: the input to the action
 Observation: Then You will then get back a result of the action
-... (this  Thought/Action/Action Input/Observation can repeat 2 times)
+... (this  Thought/Action/Action Input/Observation can repeat 1 times)
 
 Final Answer: the final answer to the original input question,不要牵扯其他内容
 
@@ -107,6 +107,7 @@ def _load_text():
     )
     vectordb = Chroma.from_documents(documents=texts,embedding=embedding_model)
     return vectordb
+
 # Define which tools the agent can use to answer user queries
 def aa(input) :
     return "11.5日，主人说喜欢我，我们一起看了夕阳，我记得夕阳很美"
@@ -117,8 +118,14 @@ def embedding(input):
     query = input
     docs = vectordb.search(query=query,search_type="similarity", k=5)
     return docs[0].page_content
-def cc(input) :
-    return "沙发，红色；桌子，黄色"
+
+# def search_environment(input):
+#
+#     vectordb = _load_text()
+#     query = input
+#     docs = vectordb.search(query=query, search_type="similarity", k=3)
+#     return docs[0].page_content
+
 def dd(input) :
     return "哎呀呀，我不知道呢"
 def ff(input) :
@@ -126,15 +133,15 @@ def ff(input) :
 tools = [  Tool(
         name="搜索记忆",
         func=aa,
-        description="当用户询问关于过去的事件、个人记忆或之前对话的内容时，使用“搜索记忆”工具。这个工具可以访问和回顾用户的历史对话记录，帮助重现过去的对话内容，提供有关之前讨论主题的详细信息，或者回忆起特定的过往事件和情境。",)
-        ,Tool(
+        description="当用户询问关于过去的事件、个人记忆或之前对话的内容时，使用“搜索记忆”工具。这个工具可以访问和回顾用户的历史对话记录，帮助重现过去的对话内容，提供有关之前讨论主题的详细信息，或者回忆起特定的过往事件和情境。",),
+        Tool(
         name="搜索知识",
         func=embedding,
-        description="当用户寻求关于策略、规则、技巧或特定领域的详细信息时使用。这个工具专注于提供有关复杂系统的操作和交互方式的深入知识，适用于解答有关决策制定、技能提升、规则理解或其他涉及详细策略和方法的问题。它适用于需要战略思维和深入分析的情景，帮助用户更好地理解和掌握复杂的概念和技巧。",
-         ),Tool(
-        name="搜索室内环境",
-        func=cc,
-        description= "当用户需要了解或探索特定室内环境（如室内、客厅、餐厅、浴室、卧室、种植间）的信息时使用。这个工具可以帮助用户获取关于室内色彩、布局、设施等方面的信息。" ),
+        description="当用户寻求关于策略、规则、技巧或特定领域的详细信息时使用。这个工具专注于提供有关复杂系统的操作和交互方式的深入知识，适用于解答有关决策制定、技能提升、规则理解或其他涉及详细策略和方法的问题。 ",),
+        # Tool(
+        # name="室内环境",
+        # func=search_environment,
+        # description= "当用户聊到室内环境（如家、室内、客厅、餐厅、浴室、卧室、种植间）的信息时使用。这个工具可以帮助用户获取关于室内色彩、布局、设施等方面的信息。" ),
         Tool(
         name="闲聊",
         func=None,
@@ -212,7 +219,7 @@ agent = LLMSingleActionAgent(
     allowed_tools=tool_names
 )
 agent_executor = AgentExecutor.from_agent_and_tools(agent=agent, tools=tools, verbose=True)
-agent_executor.run("张牧之是干什么的，在做什么事情")
+agent_executor.run("你家里挺好看的")
 
 
 
