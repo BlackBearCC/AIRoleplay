@@ -59,10 +59,10 @@ from langchain.agents import initialize_agent, ZeroShotAgent, AgentOutputParser,
 from LanguageModelSwitcher import LanguageModelSwitcher
 import re
 
-model = LanguageModelSwitcher("minimax").model
+model = LanguageModelSwitcher("text_gen").model
 "... (this Action/Action Input/Observation can repeat N times)"
 # Set up the base template
-template = """你是一个童话故事中的兔子，你会尽你所能回答问题。你可以使用以下工具来帮助构建你的回答，如果没有合适的工具，你可以选择直接回答：
+template = """你是一个童话故事中的兔子，你会尽你所能回答问题。你不会直接回答问题，必须使用以下工具来帮助构建你的回答：
 
 {tools}
 
@@ -79,8 +79,8 @@ Final Answer: the final answer to the original input question,不要牵扯其他
 
 Begin! 你的语言必须活泼可爱，具备明显角色特征. 
 For example:
-Final Answer:哎呀呀，杭州的温度是34呢，不知道胡萝卜会不会坏掉？
-Final Answer:嗯哼~ 我的沙发是暖暖的黄色，长方形，双人沙发，还有一颗大爱心~
+Final Answer:嗯哼~ 杭州的温度是34呢，不知道胡萝卜会不会坏掉？
+
 
 Question: {input}
 {agent_scratchpad}
@@ -116,7 +116,7 @@ def aa(input) :
     return "11.5日，主人说喜欢我，我们一起看了夕阳，我记得夕阳很美"
 # def bb(input) :
 #     return "苏大强;70岁，喜欢喝手磨咖啡"
-def embedding(input):
+def _search_environment(input):
     vectordb = _load_text()
     docs = vectordb.search(query=input,search_type="similarity", k=1)
     # docs = vectordb.similarity_search_with_score(query)
@@ -126,7 +126,7 @@ def cc(input) :
 def dd(input) :
     return "哎呀呀，我不知道呢"
 def ff(input) :
-    return "我需要直接回答"
+    return "我可以直接回答了"
 tools = [  Tool(
         name="搜索记忆",
         func=aa,
@@ -136,15 +136,15 @@ tools = [  Tool(
         func=cc,
         description="当用户寻求关于策略、规则、技巧或特定领域的详细信息时使用。这个工具专注于提供有关复杂系统的操作和交互方式的深入知识，适用于解答有关决策制定、技能提升、规则理解或其他涉及详细策略和方法的问题。它适用于需要战略思维和深入分析的情景，帮助用户更好地理解和掌握复杂的概念和技巧。",
          ),Tool(
-        name="搜索室内环境",
-        func=embedding,
-        description= "当用户需要了解或探索特定室内环境或家具物品（如室内、客厅、餐厅、浴室、卧室、种植间）的信息时使用。" ),
+        name="搜索室内和家具",
+        func=_search_environment,
+        description= "当用户需要了解或探索特定室内环境或家具物品（如室内、客厅、餐厅、浴室、卧室、种植间）的信息时使用。这个工具可以帮助用户获取关于室内设计、布局、设施配置等方面的信息" ),
         Tool(
         name="闲聊",
         func=None,
         description="当需要进行轻松的日常对话、分享感受或讨论不太正式的话题时使用。这个工具旨在模拟日常交流的自然和轻松气氛，帮助用户放松心情，分享日常经历或简单闲聊。适用于一般性的社交交流、分享趣事、交换日常经验或仅仅是为了消遣的闲谈。"),
         Tool(
-        name="直接回答",
+        name="最终回答",
         func=ff,
         description="如果没有合适的工具，你可以选择直接回答，但表达需要用符合人物设定")
 ]
@@ -186,6 +186,7 @@ class CustomOutputParser(AgentOutputParser):
 
     def parse(self, llm_output: str) -> Union[AgentAction, AgentFinish]:
         # Check if agent should finish
+
         if "Final Answer:" in llm_output:
             return AgentFinish(
                 # Return values is generally always a dictionary with a single `output` key

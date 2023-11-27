@@ -45,7 +45,8 @@ class LanguageModelSwitcher:
         llm = QianfanLLMEndpoint(
             streaming=True,
             model="ERNIE-Bot-turbo",
-            temperature=0.1,
+            **{"top_p": 0.4, "temperature": 0.1, "penalty_score": 1},
+
         )
 
         return llm
@@ -57,7 +58,9 @@ class LanguageModelSwitcher:
 
     def initialize_text_gen(self):
         from langchain.llms import TextGen
-        text_gen = TextGen(model_url = "http://localhost:5000")
+        # text_gen = TextGen(model_url = "http://localhost:5000")
+        text_gen = TextGen(model_url="https://54170d016v.goho.co")
+
         return text_gen
 
     def initialize_text_gen_ws(self):
