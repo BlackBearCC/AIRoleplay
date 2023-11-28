@@ -59,7 +59,8 @@ class LanguageModelSwitcher:
     def initialize_text_gen(self):
         from langchain.llms import TextGen
         # text_gen = TextGen(model_url = "http://localhost:5000")
-        text_gen = TextGen(model_url="https://54170d016v.goho.co")
+        # text_gen = TextGen(model_url="https://54170d016v.goho.co")
+        text_gen = TextGen(model_url="http://123.60.183.64:5000")
 
         return text_gen
 
